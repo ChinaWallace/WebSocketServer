@@ -1,3 +1,0 @@
-﻿  SC_Server.cpp
-d:\github\websocketserver\websocketserver\websocket\sc_server.cpp(165): warning C4018: “<”: 有符号/无符号不匹配
-  WebSocketServer.vcxproj -> D:\GitHub\WebSocketServer\Debug\WebSocketServer.exe
