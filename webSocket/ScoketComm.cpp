@@ -124,7 +124,7 @@ BOOL ScoketComm::AppointSocketAddr(SOCKADDR_IN *const addr, const int port, cons
 }
 
 // 关闭套接字
-BOOL ScoketComm::CloseSocket(const SOCKET *const scoket)
+BOOL ScoketComm::CloseSocket(const SOCKET *const scoket, bool count/* = true*/)
 {
 	if (WinsockError())
 	{
@@ -132,9 +132,15 @@ BOOL ScoketComm::CloseSocket(const SOCKET *const scoket)
 	}
 
 	// 关闭套接字
-	closesocket(*scoket);
+	if (closesocket(*scoket) != 0 )
+	{
+		return FALSE;
+	}
 
-	ChangeCommSum(FALSE);
+	if (count)
+	{
+		ChangeCommSum(FALSE);
+	}
 
 	return TRUE;
 }
@@ -351,14 +357,16 @@ BOOL ScoketServerComm::Send(SOCKET &scoket, const char *data, int len)
 }
 
 // 接受消息
-BOOL ScoketServerComm::Recv(SOCKET &scoket, char *const data, int len)
+BOOL ScoketServerComm::Recv(SOCKET &scoket, char *const data, int len, int &size)
 {
 	if (GetScoketError() != ScoketNotError)
 	{
 		return FALSE;
 	}
 
-	if (recv(scoket, data, len, 0) <= 0)
+	size = recv(scoket, data, len, 0);
+
+	if (size <= 0)
 	{
 		CloseComm();
 		ChangeScoketError(RecvError);
@@ -483,7 +491,7 @@ ScoketClientComm::~ScoketClientComm()
 
 
 // 发送消息
-BOOL ScoketClientComm::Send(SOCKET &scoket, const char *data, int len)
+BOOL ScoketClientComm::Send(const SOCKET &scoket, const char *data, int len)
 {
 	if (GetScoketError() != ScoketNotError)
 	{
@@ -500,14 +508,16 @@ BOOL ScoketClientComm::Send(SOCKET &scoket, const char *data, int len)
 }
 
 // 接受消息
-BOOL ScoketClientComm::Recv(SOCKET &scoket, char *const data, int len)
+BOOL ScoketClientComm::Recv(SOCKET &scoket, char *const data, int len, int &size)
 {
 	if (GetScoketError() != ScoketNotError)
 	{
 		return FALSE;
 	}
 
-	if (recv(scoket, data, len, 0) <= 0)
+	size = recv(scoket, data, len, 0);
+
+	if (size <= 0)
 	{
 		ChangeScoketError(RecvError);
 		return FALSE;

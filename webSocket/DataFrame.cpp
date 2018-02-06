@@ -111,7 +111,7 @@ byte* DataFrameHeader::GetBytes()
 //}
 
 
-DataFrame::DataFrame(char* content, int nContentSize)
+DataFrame::DataFrame(const char* content, int nContentSize)
 {
 	_mask = new byte[0];
 	nMaskLen = 0;

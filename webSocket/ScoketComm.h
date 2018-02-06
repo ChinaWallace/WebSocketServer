@@ -31,7 +31,7 @@ public:
 	~ScoketComm();
 
 	ScoketError GetScoketError(void);													// 获取错误类别
-
+	int GetCommSum();																	// 获取建立的通信数量
 protected:
 	BOOL CreateSocket(SOCKET  *const scoket);											// 创建套接字
 	BOOL AppointSocketAddr(SOCKADDR_IN *const addr, const int port, const char *ip = NULL,
@@ -39,14 +39,13 @@ protected:
 
 	bool SetServer(SOCKET &scoket, SOCKADDR_IN *const addr, int amount);				// 服务器设定
 
-	virtual BOOL Send(SOCKET &scoket, const char *data, int len) = 0;					// 发送消息
-	virtual BOOL Recv(SOCKET &scoket, char *const data, int len) = 0;					// 接受消息
-
+	virtual BOOL Send(const SOCKET &scoket, const char *data, int len) = 0;				// 发送消息
+	virtual BOOL Recv(SOCKET &scoket, char *const data, int len, int &size) = 0;		// 接受消息
 	void ChangeScoketError(ScoketError error);											// 改变错误类别
 
-	int GetCommSum();																	// 获取建立的通信数量
+	
 
-	BOOL CloseSocket(const SOCKET *const scoket);										// 关闭套接字
+	BOOL CloseSocket(const SOCKET *const scoket, bool count = true);					// 关闭套接字
 private:
 	BOOL StartupWinsock();																// 启动Winsock DLL
 	BOOL WinsockError();																// Winsock DLL错误
@@ -69,7 +68,7 @@ public:
 	~ScoketServerComm();
 
 	virtual BOOL Send(SOCKET &scoket, const char *data, int len);						// 发送消息
-	virtual BOOL Recv(SOCKET &scoket, char *const data, int len);						// 接受消息
+	virtual BOOL Recv(SOCKET &scoket, char *const data, int len, int &size);			// 接受消息
 
 	BOOL SetListen(int amount);															// 设置监听客户端
 
@@ -100,8 +99,8 @@ public:
 	ScoketClientComm(const int port, const char *ip = NULL, BOOL resolve_ip = FALSE);
 	~ScoketClientComm();
 
-	virtual BOOL Send(SOCKET &scoket, const char *data, int len);						// 发送消息
-	virtual BOOL Recv(SOCKET &scoket, char *const data, int len);						// 接受消息
+	virtual BOOL Send(const SOCKET &scoket, const char *data, int len);					// 发送消息
+	virtual BOOL Recv(SOCKET &scoket, char *const data, int len, int &size);			// 接受消息
 
 	BOOL Connect();																		// 连接服务器
 

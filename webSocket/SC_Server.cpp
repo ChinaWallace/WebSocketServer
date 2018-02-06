@@ -1,19 +1,10 @@
-#define  _CRT_SECURE_NO_WARNINGS
 #include "SC_Server.h"
 
 #include "SHA1.h"
 #include "base64.h"
-#include <string.h>
-#include <stdio.h>
+
 #include <regex>
 
-ServerSC::~ServerSC(void)
-{
-	if (m_pServer != NULL)
-	{
-		delete m_pServer;
-	}
-}
 
 bool ServerSC::Create(CallBackComm pCallBack, const int port, const char *ip /* = NULL */, 
 	BOOL resolve_ip /* = FALSE */, ScoketType type /* = Normal */)
@@ -97,7 +88,8 @@ bool ServerSC::HandshakeWeb(SOCKET comm)
 	memset(requestbuf, 0, BUFSIZ);
 	memset(responsebuf, 0, BUFSIZ);
 
-	if (!Recv(comm, requestbuf, sizeof(requestbuf)))
+	int recvSize;
+	if (!Recv(comm, requestbuf, sizeof(requestbuf), recvSize))
 	{
 		return false;
 	}
@@ -184,40 +176,40 @@ void ServerSC::Command(SOCKET comm)
 {
 	m_fCallBack(comm);
 
-	CloseSocket(&comm);
+	CloseSocket(&comm, false);
 }
 
-BOOL ServerSC::Send(SOCKET &scoket, const char *data, int len)
+BOOL ServerSC::Send(const SOCKET &scoket, const char *data, int len)
 {
 	if (GetScoketError() != ScoketNotError)
 	{
-		CloseSocket(&scoket);
+		//CloseSocket(&scoket);
 		return FALSE;
 	}
 
 	if (send(scoket, data, len, 0) == SOCKET_ERROR)
 	{
-		CloseSocket(&scoket);
+		//CloseSocket(&scoket);
 		ChangeScoketError(SendError);
 		return FALSE;
 	}
 
-	return TRUE;
+ 	return TRUE;
 }
 
-BOOL ServerSC::Recv(SOCKET &scoket, char *const data, int len)
+BOOL ServerSC::Recv(SOCKET &scoket, char *const data, int len, int &size)
 {
 	int a = GetScoketError();
 	if (GetScoketError() != ScoketNotError)
-	{
-		CloseSocket(&scoket);
+	{ 
+		//CloseSocket(&scoket);
 		return FALSE;
 	}
 
-	int recv_error = recv(scoket, data, len, 0);
-	if (recv_error == SOCKET_ERROR || recv_error == 0)
+	size = recv(scoket, data, len, 0);
+	if (size <= 0)
 	{
-		CloseSocket(&scoket);
+		//CloseSocket(&scoket);
 		ChangeScoketError(RecvError);
 		return FALSE;
 	}

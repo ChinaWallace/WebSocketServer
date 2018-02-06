@@ -1,5 +1,4 @@
 #include "websocket_request.h"
-#include <string.h>
 #include <WinSock2.h>
 
 Websocket_Request::Websocket_Request():
@@ -16,22 +15,38 @@ Websocket_Request::~Websocket_Request(){
 
 }
 
-int Websocket_Request::fetch_websocket_info(char *msg){
+int Websocket_Request::fetch_websocket_info(std::vector<char>& data)
+{
 	int pos = 0;
-	fetch_fin(msg, pos);
-	fetch_opcode(msg, pos);
-	fetch_mask(msg, pos);
-	fetch_payload_length(msg, pos);
-	fetch_masking_key(msg, pos);
-	return fetch_payload(msg, pos);
+	int size = data.size();
+	char* msg = &data[0];
+
+	for (;pos<size;)
+	{
+		fetch_fin(msg, pos);
+		fetch_opcode(msg, pos);
+		fetch_mask(msg, pos);
+		fetch_payload_length(msg, pos);
+		fetch_masking_key(msg, pos);
+
+		if (pos + payload_length_ > size)
+		{
+			break;
+		}
+
+		fetch_payload(msg, pos);
+	}
+
+	if (pos != 0)
+	{
+		data.erase(data.begin(), data.begin() + pos);
+	}
+
+	return 0;
 }
 
 uint8_t Websocket_Request::getOpenCode() {
 	return opcode_;
-}
-
-char* Websocket_Request::getPayload() {
-	return payload_;
 }
 
 void Websocket_Request::reset(){
@@ -97,6 +112,9 @@ int Websocket_Request::fetch_payload(char *msg, int &pos){
 			payload_[i] = msg[pos + i] ^ masking_key_[j];
 		}
 	}
+
+	dataStr += payload_;
+
 	pos += payload_length_;
 	return 0;
 }

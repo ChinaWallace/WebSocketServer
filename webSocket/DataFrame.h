@@ -29,13 +29,13 @@ public:
     DataFrameHeader _header;
     byte* _extend;
     byte* _mask;
-    byte* _content;
+    const byte* _content;
 	int nExtendLen;
 	int nMaskLen;
 	int nContentLen;
 
 	//DataFrame(byte* buffer, int nBufLen);
-	DataFrame(char* content, int nContentLen);
+	DataFrame(const char* content, int nContentLen);
 
 	byte* GetBytes(int& nTotalSize);
 	byte* Mask(byte* data, int nDataLen, byte* mask);

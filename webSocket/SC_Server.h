@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef _WEB_COMMAND_H_
 #define _WEB_COMMAND_H_
 
@@ -34,8 +36,8 @@ typedef std::function<void (SOCKET comm)> CallBackComm;
 class ServerSC : public ScoketComm
 {
 public:
-	ServerSC(void) : m_pServer(NULL) {}
-	~ServerSC(void);
+	ServerSC(void) {}
+	~ServerSC(void) {}
 
 	/************************************************************************/
 	/* 创建
@@ -54,19 +56,14 @@ public:
 	/* 发送消息
 	* // [7/18/2016 Wings] */
 	/************************************************************************/
-	virtual BOOL Send(SOCKET &scoket, const char *data, int len);
+	virtual BOOL Send(const SOCKET &scoket, const char *data, int len);
 	/************************************************************************/
 	/* 接收消息
 	* // [7/18/2016 Wings] */
 	/************************************************************************/
-	virtual BOOL Recv(SOCKET &scoket, char *const data, int len);
+	virtual BOOL Recv(SOCKET &scoket, char *const data, int len, int &size);
 
-	/************************************************************************/
-	/* 握手Web
-	* @param comm 通信套接字
-	* // [7/15/2016 Wings] */
-	/************************************************************************/
-	bool HandshakeWeb(SOCKET comm);
+	
 protected:
 private:
 	/************************************************************************/
@@ -83,7 +80,12 @@ private:
 	/************************************************************************/
 	bool Handshake(SOCKET comm, ScoketType type);
 
-	
+	/************************************************************************/
+	/* 握手Web
+	* @param comm 通信套接字
+	* // [7/15/2016 Wings] */
+	/************************************************************************/
+	bool HandshakeWeb(SOCKET comm);
 
 	/************************************************************************/
 	/* 握手ActionScript
@@ -107,8 +109,6 @@ private:
 	char* HashString(std::string szMsg);
 
 	SOCKET m_sServer; // 服务器套接字 [6/29/2016 Wings]
-
-	ScoketServerComm * m_pServer;
 
 	CallBackComm m_fCallBack; // 回调通信函数 [10/13/2016 Wings]
 };
